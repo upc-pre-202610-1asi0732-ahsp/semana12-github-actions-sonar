@@ -26,6 +26,13 @@ jobs:
       - name: Build, test and generate coverage
         run: mvn -B clean verify
 
+      # === REVISA ESTE PASO (¡Es el que te falta en el primer Job!) ===
+      - name: Upload Build Artifact (JAR)
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-jar
+          path: app/target/demo-ci-cd-springboot-*.jar  # Asegúrate de que apunte a donde Maven genera tu archivo .jar
+
       - name: Upload test reports
         uses: actions/upload-artifact@v4
         if: always()
