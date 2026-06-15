@@ -27,18 +27,17 @@ jobs:
         run: mvn -B clean verify
 
       - name: SonarCloud analysis
-       env:
-         SONAR_TOKEN: 8e7363c5852d5ee3ca2c34982c4323b39506ed97
-         SONAR_ORGANIZATION: upc-pre-202610-1asi0732-ahsp
-         SONAR_PROJECT_KEY: semana12-github-actions-sonar
-       run: |
-         mvn -B sonar:sonar \
-           -Dsonar.host.url=https://sonarcloud.io \
-           -Dsonar.organization=upc-pre-202610-1asi0732-ahsp \
-           -Dsonar.projectKey=semana12-github-actions-sonar \
-           -Dsonar.token=8e7363c5852d5ee3ca2c34982c4323b39506ed97 \
-           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-
+        env:
+          SONAR_TOKEN: 8e7363c5852d5ee3ca2c34982c4323b39506ed97
+          SONAR_ORGANIZATION: upc-pre-202610-1asi0732-ahsp
+          SONAR_PROJECT_KEY: semana12-github-actions-sonar
+        run: |
+          mvn -B sonar:sonar \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.organization=upc-pre-202610-1asi0732-ahsp \
+            -Dsonar.projectKey=semana12-github-actions-sonar \
+            -Dsonar.token=8e7363c5852d5ee3ca2c34982c4323b39506ed97 \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
       # === REVISA ESTE PASO (¡Es el que te falta en el primer Job!) ===
       - name: Upload Build Artifact (JAR)
