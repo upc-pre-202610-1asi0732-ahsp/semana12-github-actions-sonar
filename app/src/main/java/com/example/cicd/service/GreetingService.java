@@ -25,4 +25,14 @@ public class GreetingService {
 
         return trimmedName;
     }
+
+    public String hello(String name) {
+        if (name == null) {
+            return "";
+        }
+        if (name == null) {
+            return "";
+        }
+        return "Hola";
+    }
 }
