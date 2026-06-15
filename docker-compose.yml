@@ -1,0 +1,85 @@
+services:
+  jenkins:
+    build:
+      context: ./jenkins
+    container_name: jenkins-demo
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      # Permite que Jenkins ejecute docker build / docker run usando Docker del host.
+      # Para una demo docente es simple. Para producción se recomienda un agente controlado.
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Caché Maven para acelerar compilaciones.
+      - maven_cache:/root/.m2
+      # Alternativa docente: permite ejecutar el Jenkinsfile sin Git remoto,
+      # copiando las fuentes desde esta carpeta montada.
+      - ./:/workspace/ci-cd-springboot-nivel2:ro
+    networks:
+      - cicd-net
+    depends_on:
+      sonarqube:
+        condition: service_started
+
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: sonarqube-demo
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://postgres-sonar:5432/sonarqube
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - cicd-net
+    depends_on:
+      postgres-sonar:
+        condition: service_healthy
+
+  postgres-sonar:
+    image: postgres:16
+    container_name: postgres-sonar-demo
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonarqube
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar -d sonarqube"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_sonar_data:/var/lib/postgresql/data
+    networks:
+      - cicd-net
+
+  # Servicio opcional para desplegar manualmente la app sin Jenkins:
+  # docker compose --profile manual-app up -d --build app-demo
+  app-demo:
+    profiles:
+      - manual-app
+    build:
+      context: ./app
+    container_name: demo-springboot-app-manual
+    ports:
+      - "8081:8080"
+    networks:
+      - cicd-net
+
+networks:
+  cicd-net:
+    name: cicd-net
+
+volumes:
+  jenkins_home:
+  maven_cache:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgres_sonar_data:

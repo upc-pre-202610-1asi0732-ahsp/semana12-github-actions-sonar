@@ -1,0 +1,70 @@
+name: Semana 12 - CI Quality Pipeline
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master", "develop" ]
+  workflow_dispatch:
+
+jobs:
+  build-test-coverage:
+    name: Build, Tests and Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Build, test and generate coverage
+        run: mvn -B clean verify
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: surefire-test-reports
+          path: app/target/surefire-reports/
+
+      - name: Upload JaCoCo coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacoco-coverage-report
+          path: app/target/site/jacoco/
+
+  docker-smoke-test:
+    name: Docker Build and Smoke Test
+    runs-on: ubuntu-latest
+    needs: build-test-coverage
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t fitmanager-semana12:latest app
+
+      - name: Run application container
+        run: |
+          docker run -d \
+            --name fitmanager-semana12 \
+            -p 8081:8080 \
+            fitmanager-semana12:latest
+
+      - name: Wait for application
+        run: sleep 15
+
+      - name: Smoke test health endpoint
+        run: curl -f http://localhost:8081/actuator/health
+
+      - name: Show container logs if failed
+        if: failure()
+        run: docker logs fitmanager-semana12
