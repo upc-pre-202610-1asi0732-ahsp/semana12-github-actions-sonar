@@ -1,4 +1,4 @@
-# Demo CI/CD Nivel 2 - Spring Boot JDK 17 + Jenkins + SonarQube + Docker
+# Demo CI/CD Nivel 2 - Spring Boot JDK 17 + Jenkins + SonarQube + Docker 
 
 Este proyecto es una base didáctica para una sesión docente de CI/CD de nivel intermedio.
 
