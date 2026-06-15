@@ -49,6 +49,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ESTE PASO ES CRÍTICO: Descarga el JAR dentro de 'app/target/'
+      - name: Download Build Artifact (JAR)
+        uses: actions/download-artifact@v4
+        with:
+          name: application-jar
+          path: app/target/  # <-- Obliga a que se cree la ruta app/target/ antes del build   
+
       - name: Build Docker image
         run: docker build -t fitmanager-semana12:latest app
 
