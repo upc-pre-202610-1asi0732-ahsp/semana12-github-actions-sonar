@@ -1,4 +1,4 @@
-name: Semana 12 - CI Quality Pipeline
+name: Semana 12 - CI Quality Pipeline 
 
 on:
   push:
